@@ -20,16 +20,24 @@ import com.google.android.gms.maps.model.MarkerOptions
 import kotlinx.android.synthetic.main.activity_maps.*
 import android.support.v4.app.ActivityCompat
 import android.content.pm.PackageManager
+import android.location.Location
 import android.support.v4.content.ContextCompat
 import android.util.Log
+import com.google.android.gms.location.LocationListener
+import com.google.android.gms.location.LocationRequest
+import java.text.DateFormat
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
+    private lateinit var mLocationRequest: LocationRequest
 
     val REQUEST_GPS = 15 // Valor qualquer
+    private val INTERVAL = (1000 * 10).toLong()
+    private val FASTEST_INTERVAL = (1000 * 5).toLong()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -157,6 +165,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 return
             }
         }
+    }
+
+    override fun onLocationChanged(location: Location?) {
+        Log.d("TAG", "Firing onLocationChanged..............................................")
+        if (location != null) {
+            adicionarMarcador(location.latitude, location.longitude, "Minha localização!")
+        }
+
+
+    }
+
+    protected fun createLocationRequest() {
+        mLocationRequest = LocationRequest()
+        mLocationRequest.interval = INTERVAL
+        mLocationRequest.fastestInterval = FASTEST_INTERVAL
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
     }
 
 }
